@@ -347,3 +347,13 @@ template {
 [hidden] {
   display: none;
 }
+
+:focus,
+:active {
+   outline: none;
+}
+
+a:focus,
+a:active {
+   outline: none;
+}
