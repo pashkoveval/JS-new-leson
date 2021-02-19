@@ -1,90 +1,153 @@
-const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+let btnCartButton = document.querySelector('.cart-button');
+let cartBody = document.querySelector('.cart-body-box');
+let goodsListHTML = document.querySelector('.goods-list');
 
-// Переделать в ДЗ (не на fetch!!! а на Promise)
-let getRequest = (url, cb) => {
-  let xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.onreadystatechange = () => {
-    if (xhr.readyState === 4) {
-      if (xhr.status !== 200) {
-        console.log('Error');
-      } else {
-        cb(xhr.responseText);
-      }
-    }
-  };
-  xhr.send();
-};
 
-class ProductList {
-  constructor(container = '.products') {
-    this.container = container;
-    this.goods = [];
-    this.allProducts = [];
-    // this.#fetchProducts();
-    this.#getProducts()
-        .then((data) => {
-          this.goods = [...data];
-          this.render();
-        });
-  }
+btnCartButton.addEventListener('click', (event) => {
+    cartBody.classList.toggle('open');
+})
 
-  // #fetchProducts() {
-  //   getRequest(`${API}/catalogData.json`, (data) => {
-  //     this.goods = JSON.parse(data);
-  //     console.log(this.goods);
-  //     this.render();
-  //   });
-  // }
-  #getProducts() {
-    return fetch(`${API}/catalogData.json`)
-        .then(result => result.json())
-        .catch(error => {
-          console.log('Error!', error);
-        });
-  }
-  calcSum() {
-    // return this.goods.reduce((sum, { price }) => sum + price, 0);
-    return this.goods.reduce(function (sum, good) {
-      console.log(good.price);
-      return sum + good.price;
-    }, 0);
-  }
 
-  // map() {
-  //   return this.goods.map((good) => ({ price: good.price }));
-  // }
+const requwstURL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/getBasket.json';
 
-  render() {
-    const block = document.querySelector(this.container);
-    for (let product of this.goods) {
-      const productObject = new ProductItem(product);
-      this.allProducts.push(productObject);
-      block.insertAdjacentHTML('beforeend', productObject.render());
-    }
-  }
+
+function sendReques(method, url, body = 'nall') {
+    return fetch(url)
 }
 
-class ProductItem {
-  constructor(product, img = 'https://placehold.it/200x150') {
-    this.title = product.title;
-    this.price = product.price;
-    this.id = product.id;
-    this.img = img;
-  }
+class Cart {
+    __items = [];
 
-  render() {
-    return `<div class="product-item" data-id="${this.id}">
-              <img src="${this.img}" alt="Some img">
-              <div class="desc">
-                  <h3>${this.title}</h3>
-                  <p>${this.price} \u20bd</p>
-                  <button class="buy-btn">Купить</button>
-              </div>
-          </div>`;
-  }
+    getItems() {
+        return this.__items;
+    }
+
+    addItem = item => {
+        this.__items.push(item);
+        this.render();
+
+    };
+
+    removeItem(id) {
+        this.__items = this.__items.filter(i => i.id !== id);
+        this.render();
+    }
+
+    __cartLength() {
+        const span = document.querySelector('.counter-cart');
+        if (this.__items.length > 0) {
+            span.innerText = this.__items.length;
+        } else {
+            span.innerHTML = ''
+        }
+    }
+
+    __emptyCart() {
+        const empty = `
+        <div class="empty">
+            <h2>Товаров нет</h2>
+        </div>`
+        if (this.__items.length == 0) {
+            document.querySelector('.cart-body').innerHTML = empty;
+        }
+    }
+
+    __getGoodsItemTemplate = ({
+        productName,
+        price,
+        id,
+        img
+    }) => {
+        return `<div class="goods-item">
+            <img src="${img}" alt="">
+            <h3>${productName}</h3>
+            <p>${price}</p>
+            <button class="button-to-cart delet-item-cart" type="button" value="${id}">Удалить</button>
+         </div>`;
+    };
+
+    render() {
+        const goodsTemplates = this.__items.map(item => this.__getGoodsItemTemplate(item)).join('');
+        const wrapper = document.querySelector('.cart-body');
+        wrapper.innerHTML = goodsTemplates;
+        wrapper.querySelectorAll('.delet-item-cart').forEach(i => {
+            i.addEventListener('click', () => {
+                console.log(cart, 'ggg');
+                const id = i.value;
+                cart.removeItem(id);
+            });
+        });
+        this.__cartLength();
+        this.__emptyCart();
+
+    }
 }
 
-const list = new ProductList();
-console.log(list.calcSum());
-// console.log(list.map());
+class GoodsList {
+    goods = [];
+    filteredGoods = [];
+    buttons;
+    input;
+
+
+    __getGoodsItemTemplate = ({
+        productName,
+        price,
+        id,
+        img
+    }) => {
+        return `<div class="goods-item">
+            <img src="${img}" alt="">
+            <h3>${productName}</h3>
+            <p>${price}</p>
+            <button class="button-to-cart" type="button" value="${id}">Купить</button>
+         </div>`;
+    };
+
+    handleChange = event => {
+        this.filteredGoods = this.goods.filter(item => {
+            const v = event.target.value.toLowerCase();
+            return item.productName.toLowerCase().includes(v);
+        });
+        console.log(this.filteredGoods);
+        this.render();
+    };
+
+    init(url) {
+        this.input = document.querySelector('[data-id=search]');
+        this.input.addEventListener('input', this.handleChange);
+        this.getGoods(url).then(() => {
+            this.render();
+        });
+    }
+
+    getGoods(url) {
+        return fetch(url)
+            .then(r => r.json())
+            .then(r => {
+                this.goods = r;
+                this.filteredGoods = this.goods;
+            });
+    }
+
+    render(selector = '.goods-list') {
+        const goodsTemplates = this.filteredGoods.map(item => this.__getGoodsItemTemplate(item)).join('');
+        const wrapper = document.querySelector(selector);
+        wrapper.innerHTML = goodsTemplates;
+        wrapper.querySelectorAll('.button-to-cart').forEach(i => {
+            i.addEventListener('click', () => {
+                console.log(cart);
+                const id = i.value;
+                const item = this.goods.find(goodsItem => goodsItem.id === id);
+                cart.addItem(item);
+            });
+        });
+        console.log(this.filteredGoods);
+
+    }
+}
+
+const cart = new Cart();
+
+const url = 'https://602c2a0730ba720017222bc0.mockapi.io/goods';
+const list = new GoodsList().init(url);
