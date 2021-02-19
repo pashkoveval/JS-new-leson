@@ -1,20 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Интернет-магазин</title>
-    <link rel="stylesheet" href="css/normalize.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>lesson 1</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <header>
-        <div class="logo">Интернет-магазин</div>
-        <button class="btn-cart" type="button">Корзина</button>
-        <div class="cart"></div>
-    </header>
-    <main>
-        <div class="products"></div>
-    </main>
+    <div class="wrapper">
+        <header class="header">
+            <nav class="header-nav">
+                <input type="search" placeholder="Search" data-id="search">
+                <button class="cart-button" type="button">Корзина <span class="counter-cart"></span></button>
+            </nav>
+            <div class="cart-body-box">
+                <div class="cart-body">
+                    <div class="empty">
+                        <h2>Товаров нет</h2>
+                    </div>
+                </div>
+                <div class="btn-buy-total">
+                    <span class="totl-price"></span>
+                    <button>Купить</button>
+                </div>
+
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="goods-list">
+            </div>
+        </main>
+
+
+    </div>
     <script src="js/main.js"></script>
 </body>
+
 </html>
