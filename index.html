@@ -1,20 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Интернет-магазин</title>
-    <link rel="stylesheet" href="css/normalize.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>lesson 1</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <header>
-        <div class="logo">Интернет-магазин</div>
-        <button class="btn-cart" type="button">Корзина</button>
-        <div class="cart"></div>
-    </header>
-    <main>
-        <div class="products"></div>
-    </main>
+    <div class="wrapper" id="root">
+
+        <header class="header">
+            <nav class="header-nav">
+                <input type="search" placeholder="Search" data-id="search" v-model="searchLine" @input="serchItem()">
+                <button @click="isVisibleCart=!isVisibleCart" class="cart-button" type="button">Корзина <span
+                        class="counter-cart" v-if="cartGoods.length > 0">{{cartGoods.length}}</span></button>
+            </nav>
+            <div class="cart-body-box" v-if="isVisibleCart">
+                <div class="cart-body">
+                    <div v-if="cartGoods.length === 0" class="empty">
+                        <h2>Товаров нет</h2>
+                    </div>
+                    <div class="cart-item" v-for="item in cartGoods">
+                        <img v-bind:src="item.img" alt="">
+                        <h3>{{item.productName}}</h3>
+                        <p>{{item.price * item.quantity}}</p>
+                        <div class="quantity">
+                            <button @click="item.quantity--" v-if="item.quantity > 1">-</button>
+                            <span>{{item.quantity}}</span>
+                            <button @click="item.quantity++">+</button>
+                        </div>
+                        <button class="button-to-cart delet-item-cart" type="button" v-bind:value="item.id"
+                            @click="deletItemCart(item.id)">Удалить</button>
+                    </div>
+                </div>
+                <div v-if="cartGoods.length > 0" class="btn-buy-total">
+                    <button @click="deletAllCart()">Очистить</button>
+                    <button>Купить</button>
+                    <span class="totl-price" >Итоговая сумма равна {{totalSum}}</span>
+                </div>
+
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="goods-list">
+                <div class="goods-item" v-for="item in filteredGoods">
+                    <img v-bind:src="item.img" alt="">
+                    <h3>{{item.productName}}</h3>
+                    <p>{{item.price}}</p>
+                    <button @click="addToCart(item.id)" class="button-to-cart" type="button"
+                        v-bind:value="item.id">Купить</button>
+                </div>
+            </div>
+        </main>
+
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="js/main.js"></script>
 </body>
+
 </html>

@@ -1,90 +1,82 @@
-const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+const url = 'https://602c2a0730ba720017222bc0.mockapi.io/goods';
 
-// Переделать в ДЗ (не на fetch!!! а на Promise)
-let getRequest = (url, cb) => {
-  let xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.onreadystatechange = () => {
-    if (xhr.readyState === 4) {
-      if (xhr.status !== 200) {
-        console.log('Error');
-      } else {
-        cb(xhr.responseText);
-      }
+const app = new Vue({
+    el: '#root',
+    data: {
+        goods: [],
+        filteredGoods: [],
+        cartGoods: [],
+        searchLine: '',
+        errorMSG: '',
+        totalSum: 0,
+        isVisibleCart: false,
+    },
+    methods: {
+
+        getGoods() {
+            fetch(`${url}`)
+                .then(r => r.json())
+                .then(r => {
+                    this.goods = r;
+                    this.filteredGoods = this.goods;
+                })
+                .catch((e) => {
+                    this.errorMSG = e;
+                })
+        },
+        serchItem() {
+
+            this.filteredGoods = this.goods.filter(item => {
+                const regexp = new RegExp(this.searchLine, 'i');
+                const match = item.productName.match(regexp);
+                return !!match;
+            })
+
+        },
+        addToCart(id) {
+
+            if (!this.cartGoods.find(i => i.id === id)) {
+                const item = this.filteredGoods.find((el) => {
+                    if (el.id === id) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                this.cartGoods.push(item);
+            } else {
+                this.filteredGoods.forEach(el => {
+                    if (el.id === id) {
+                        el.quantity++
+                    }
+                })
+            }
+
+
+        },
+
+
+        deletItemCart(id) {
+            const index = this.cartGoods.findIndex(i => i.id === id);
+            if (index !== -1) {
+                this.cartGoods.splice(index, 1);
+            }
+        },
+        deletAllCart() {
+            this.cartGoods = [];
+        },
+
+
+    },
+    computed: {
+        totalSumItem() {
+
+        }
+
+    },
+    mounted() {
+        this.getGoods();
+
     }
-  };
-  xhr.send();
-};
 
-class ProductList {
-  constructor(container = '.products') {
-    this.container = container;
-    this.goods = [];
-    this.allProducts = [];
-    // this.#fetchProducts();
-    this.#getProducts()
-        .then((data) => {
-          this.goods = [...data];
-          this.render();
-        });
-  }
-
-  // #fetchProducts() {
-  //   getRequest(`${API}/catalogData.json`, (data) => {
-  //     this.goods = JSON.parse(data);
-  //     console.log(this.goods);
-  //     this.render();
-  //   });
-  // }
-  #getProducts() {
-    return fetch(`${API}/catalogData.json`)
-        .then(result => result.json())
-        .catch(error => {
-          console.log('Error!', error);
-        });
-  }
-  calcSum() {
-    // return this.goods.reduce((sum, { price }) => sum + price, 0);
-    return this.goods.reduce(function (sum, good) {
-      console.log(good.price);
-      return sum + good.price;
-    }, 0);
-  }
-
-  // map() {
-  //   return this.goods.map((good) => ({ price: good.price }));
-  // }
-
-  render() {
-    const block = document.querySelector(this.container);
-    for (let product of this.goods) {
-      const productObject = new ProductItem(product);
-      this.allProducts.push(productObject);
-      block.insertAdjacentHTML('beforeend', productObject.render());
-    }
-  }
-}
-
-class ProductItem {
-  constructor(product, img = 'https://placehold.it/200x150') {
-    this.title = product.title;
-    this.price = product.price;
-    this.id = product.id;
-    this.img = img;
-  }
-
-  render() {
-    return `<div class="product-item" data-id="${this.id}">
-              <img src="${this.img}" alt="Some img">
-              <div class="desc">
-                  <h3>${this.title}</h3>
-                  <p>${this.price} \u20bd</p>
-                  <button class="buy-btn">Купить</button>
-              </div>
-          </div>`;
-  }
-}
-
-const list = new ProductList();
-console.log(list.calcSum());
-// console.log(list.map());
+});
