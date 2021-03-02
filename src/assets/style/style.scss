@@ -1,0 +1,20 @@
+@import "lets.scss";
+
+/*  Стилизация Скрол-Бара взята от сюда https://only-to-top.ru/blog/coding/2020-01-31-stilizaciya-skrolla-css.html */
+/* полоса прокрутки (скроллбар) */
+::-webkit-scrollbar {
+    width: 10px; /* ширина для вертикального скролла */
+    height: 8px; /* высота для горизонтального скролла */
+    background-color: #fff;
+}
+
+/* ползунок скроллбара */
+::-webkit-scrollbar-thumb {
+    background-color: $pink;
+    border-radius: 4px;
+    box-shadow: inset 1px 1px 10px #fff;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #50bbc9;
+}
